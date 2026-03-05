@@ -22,14 +22,14 @@ async function login(email, password) {
 
 // Login page init
 document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('login-form');
+  if (!form) return;  // Not the login page — do nothing
+
   // If already logged in, skip login page
   if (getToken()) { window.location.href = '/app'; return; }
 
-  const form    = document.getElementById('login-form');
   const errDiv  = document.getElementById('error-msg');
   const btn     = document.getElementById('login-btn');
-
-  if (!form) return;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
