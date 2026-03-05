@@ -34,6 +34,10 @@ async function apiUpdateProduct(productId, payload) {
   return apiFetch('PUT', `/products/${productId}`, payload);
 }
 
+async function apiDeleteProduct(productId) {
+  return apiFetch('DELETE', `/products/${productId}`);
+}
+
 async function apiGetAllProducts() {
   return apiFetch('GET', '/products/all');
 }

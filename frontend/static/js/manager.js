@@ -36,6 +36,7 @@ function fillEditForm(index) {
   const p = window._products[index];
   currentEditId = p.id;
   document.getElementById('edit-name').value          = p.name;
+  document.getElementById('edit-barcode').value       = p.barcode;
   document.getElementById('edit-price').value         = p.price_per_unit;
   document.getElementById('edit-qty').value           = p.quantity;
   document.getElementById('edit-discount').value      = p.discount_percent || 0;
@@ -80,6 +81,7 @@ async function handleUpdateProduct(e) {
 
   const payload = {
     name:             document.getElementById('edit-name').value.trim() || null,
+    barcode:          document.getElementById('edit-barcode').value.trim() || null,
     price_per_unit:   parseFloat(document.getElementById('edit-price').value) || null,
     quantity:         parseInt(document.getElementById('edit-qty').value) ?? null,
     discount_percent: parseFloat(document.getElementById('edit-discount').value) ?? null,
@@ -89,6 +91,20 @@ async function handleUpdateProduct(e) {
   try {
     await apiUpdateProduct(currentEditId, payload);
     showMsg(msgDiv, 'success', 'Product updated successfully.');
+    document.getElementById('edit-section').classList.add('hidden');
+    currentEditId = null;
+    loadInventory();
+  } catch (err) {
+    showMsg(msgDiv, 'error', err.message);
+  }
+}
+
+async function handleDeleteProduct() {
+  if (!currentEditId) return;
+  const msgDiv = document.getElementById('edit-msg');
+  if (!confirm('Are you sure you want to delete this product? This cannot be undone.')) return;
+  try {
+    await apiDeleteProduct(currentEditId);
     document.getElementById('edit-section').classList.add('hidden');
     currentEditId = null;
     loadInventory();
@@ -113,5 +129,6 @@ function initManager() {
     document.getElementById('edit-section').classList.add('hidden');
     currentEditId = null;
   });
+  document.getElementById('delete-product-btn').addEventListener('click', handleDeleteProduct);
   loadInventory();
 }

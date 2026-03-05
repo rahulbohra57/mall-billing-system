@@ -13,6 +13,7 @@ class ProductCreate(BaseModel):
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
+    barcode: Optional[str] = None
     price_per_unit: Optional[float] = None
     quantity: Optional[int] = None
     discount_percent: Optional[float] = None

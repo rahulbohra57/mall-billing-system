@@ -63,6 +63,8 @@ def update_product(product_id: str, update: ProductUpdate, current_user: dict = 
     }
     if update.name is not None:
         changes["name"] = update.name
+    if update.barcode is not None:
+        changes["barcode"] = update.barcode
     if update.quantity is not None:
         changes["quantity"] = int(update.quantity)
     if update.category is not None:
@@ -73,6 +75,15 @@ def update_product(product_id: str, update: ProductUpdate, current_user: dict = 
         raise HTTPException(status_code=500, detail="Update failed")
 
     return {"message": "Product updated successfully", "product": res.data[0]}
+
+
+@router.delete("/{product_id}")
+def delete_product(product_id: str, current_user: dict = Depends(require_manager)):
+    existing = supabase.table("products").select("id").eq("id", product_id).single().execute().data
+    if not existing:
+        raise HTTPException(status_code=404, detail="Product not found")
+    supabase.table("products").delete().eq("id", product_id).execute()
+    return {"message": "Product deleted successfully"}
 
 
 @router.get("/all")
