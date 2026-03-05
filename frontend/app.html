@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mall Billing System</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <span class="navbar-brand">🏬 Mall Billing System</span>
+    <div class="navbar-right">
+      <div class="user-info">
+        <span id="user-name"></span>
+        <span id="user-role" class="role-badge"></span>
+      </div>
+      <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar" id="tab-bar">
+    <button id="tab-manager" class="tab-btn hidden">Manager</button>
+    <button id="tab-employee" class="tab-btn active">Employee</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MANAGER PANEL
+  ════════════════════════════════════════════════════════ -->
+  <div id="manager-panel" class="hidden">
+    <div class="main-content">
+
+      <!-- Add Product -->
+      <div class="card">
+        <div class="card-title">Add New Product</div>
+        <form id="add-product-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product Name *</label>
+              <input type="text" id="add-name" placeholder="e.g. Basmati Rice 1kg" required />
+            </div>
+            <div class="form-group">
+              <label>Barcode *</label>
+              <input type="text" id="add-barcode" placeholder="e.g. 8901234567890" required />
+            </div>
+            <div class="form-group">
+              <label>Price per Unit (₹) *</label>
+              <input type="number" id="add-price" placeholder="0.00" min="0.01" step="0.01" required />
+            </div>
+            <div class="form-group">
+              <label>Quantity *</label>
+              <input type="number" id="add-qty" placeholder="0" min="0" required />
+            </div>
+            <div class="form-group">
+              <label>Discount %</label>
+              <input type="number" id="add-discount" placeholder="0" min="0" max="100" step="0.1" value="0" />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input type="text" id="add-category" placeholder="e.g. Grocery" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Product</button>
+            <div id="add-msg" class="alert hidden"></div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Edit Product (hidden until row is clicked) -->
+      <div class="card hidden" id="edit-section">
+        <div class="card-title">
+          Edit Product — Barcode: <code id="edit-barcode-display"></code>
+        </div>
+        <form id="edit-product-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" id="edit-name" />
+            </div>
+            <div class="form-group">
+              <label>Price per Unit (₹)</label>
+              <input type="number" id="edit-price" min="0.01" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" id="edit-qty" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Discount %</label>
+              <input type="number" id="edit-discount" min="0" max="100" step="0.1" />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input type="text" id="edit-category" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Cancel</button>
+            <div id="edit-msg" class="alert hidden"></div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="card">
+        <div class="card-title">Product Inventory</div>
+        <div class="table-wrapper">
+          <table id="inventory-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Barcode</th>
+                <th>Price/Unit</th>
+                <th>Discount</th>
+                <th>Final Price</th>
+                <th>Stock</th>
+                <th>Category</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="8"><div class="empty-state"><p>Loading inventory...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /manager-panel -->
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       EMPLOYEE PANEL
+  ════════════════════════════════════════════════════════ -->
+  <div id="employee-panel" class="hidden">
+    <div class="main-content">
+
+      <!-- Barcode Search -->
+      <div class="card">
+        <div class="card-title">Scan / Search Product</div>
+        <form id="barcode-form">
+          <div class="search-row">
+            <div class="form-group">
+              <label for="barcode-input">Barcode</label>
+              <input type="text" id="barcode-input" placeholder="Enter or scan barcode..." autocomplete="off" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 0;">Search</button>
+          </div>
+        </form>
+
+        <div id="search-error" class="alert alert-error hidden"></div>
+
+        <!-- Product Preview -->
+        <div id="product-preview" class="product-preview hidden">
+          <div>
+            <div class="product-name" id="preview-name"></div>
+            <div class="product-meta">
+              <span id="preview-barcode"></span>
+              &nbsp;·&nbsp;
+              <span id="preview-category"></span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="product-price" id="preview-price"></div>
+            <div class="product-stock" id="preview-stock"></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="number" id="qty-input" value="1" min="1" style="width:80px; padding:8px; border:1.5px solid var(--border); border-radius:8px; font-size:14px;" />
+            <button id="add-to-cart-btn" class="btn btn-success">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart -->
+      <div class="card">
+        <div class="card-title">Shopping Cart</div>
+        <div class="table-wrapper">
+          <table id="cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="cart-total-row">
+          <span class="cart-total-label">Total:</span>
+          <span class="cart-total-amount" id="cart-total-amount">₹0.00</span>
+        </div>
+
+        <div class="cart-actions hidden" id="cart-actions">
+          <button class="btn btn-secondary" id="clear-cart-btn">Clear Cart</button>
+          <button class="btn btn-success" id="checkout-btn">Generate Final Bill</button>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /employee-panel -->
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BILL MODAL
+  ════════════════════════════════════════════════════════ -->
+  <div id="bill-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Bill Receipt</div>
+          <div class="bill-meta">
+            Bill ID: <code id="modal-bill-id"></code><br/>
+            Date: <span id="modal-bill-date"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="bill-items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="bill-grand-total">
+        <span class="label">Grand Total</span>
+        <span class="amount" id="modal-grand-total"></span>
+      </div>
+
+      <div class="modal-footer">
+        <button id="close-modal-btn" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Scripts (order matters: api → auth → manager → employee → app) -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/manager.js"></script>
+  <script src="/static/js/employee.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
