@@ -20,6 +20,9 @@ A full-stack retail billing system for **Bachat Retail Store** with two roles:
 - **Manager** — add products, set prices & discounts, edit/delete inventory
 - **Cashier** — scan products by barcode, build a cart, generate a bill, download PDF receipt
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/b7ed521a-e8ff-426d-8fec-d3ca031ec361" />
+
+
 ---
 
 ## Creating Additional Users
