@@ -1,5 +1,6 @@
 let cart = [];
 let currentProduct = null;
+let currentBillId = null;
 
 function fmtPrice(n) { return '₹' + Number(n).toFixed(2); }
 function esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -141,6 +142,7 @@ async function handleCheckout() {
 }
 
 function showBillModal(billId, items, total) {
+  currentBillId = billId;
   document.getElementById('modal-bill-id').textContent = billId;
   document.getElementById('modal-bill-date').textContent = new Date().toLocaleString();
 
@@ -163,6 +165,22 @@ function showBillModal(billId, items, total) {
 
 function closeBillModal() {
   document.getElementById('bill-modal').classList.add('hidden');
+  currentBillId = null;
+}
+
+async function handleDownloadPdf() {
+  if (!currentBillId) return;
+  const btn = document.getElementById('download-pdf-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  try {
+    await apiDownloadBillPdf(currentBillId);
+  } catch (err) {
+    alert('PDF download failed: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Download PDF';
+  }
 }
 
 function initEmployee() {
@@ -171,6 +189,7 @@ function initEmployee() {
   document.getElementById('clear-cart-btn').addEventListener('click', clearCart);
   document.getElementById('checkout-btn').addEventListener('click', handleCheckout);
   document.getElementById('close-modal-btn').addEventListener('click', closeBillModal);
+  document.getElementById('download-pdf-btn').addEventListener('click', handleDownloadPdf);
   // Close modal on overlay click
   document.getElementById('bill-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('bill-modal')) closeBillModal();

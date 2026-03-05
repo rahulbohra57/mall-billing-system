@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import StreamingResponse
 from app.database import supabase
 from app.schemas.billing import CheckoutRequest
 from app.auth_utils import require_cashier
+from app.utils.pdf_generator import generate_bill_pdf
 import uuid
 import traceback
 
@@ -94,6 +96,29 @@ def checkout_billing(payload: CheckoutRequest, current_user: dict = Depends(requ
 @router.get("/")
 def list_bills(current_user: dict = Depends(require_cashier)):
     return supabase.table("bills").select("*").order("created_at", desc=True).execute().data
+
+
+@router.get("/{bill_id}/pdf")
+def download_bill_pdf(bill_id: str, current_user: dict = Depends(require_cashier)):
+    bill = supabase.table("bills").select("*").eq("id", bill_id).single().execute().data
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+
+    items = supabase.table("bill_items").select(
+        "*, products(name, barcode, price_per_unit, discount_percent)"
+    ).eq("bill_id", bill_id).execute().data
+
+    cashier = supabase.table("app_users").select("name").eq("id", bill["cashier_id"]).single().execute().data
+    cashier_name = cashier["name"] if cashier else "Unknown"
+
+    pdf_buffer = generate_bill_pdf(bill, items, cashier_name)
+    filename = f"bill-{bill_id[:8]}.pdf"
+
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 
 @router.get("/{bill_id}")

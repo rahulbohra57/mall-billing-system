@@ -55,6 +55,23 @@ async function apiGetBill(billId) {
   return apiFetch('GET', `/billing/${billId}`);
 }
 
+async function apiDownloadBillPdf(billId) {
+  const token = getToken();
+  const res = await fetch(`/billing/${billId}/pdf`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error('Failed to generate PDF');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bill-${billId.slice(0, 8)}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 async function apiListBills() {
   return apiFetch('GET', '/billing/');
 }
